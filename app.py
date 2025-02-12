@@ -12,9 +12,11 @@ def index():
     This method will
     1. Provide usage instructions formatted as JSON
     """
-    # response = {"usage": "/dict?=<word>"}
-    # Since this is a website with front-end, we don't need to send the usage instructions
-    return "TODO"
+    
+    # response = {"usage" : "/dict?=<word>"}
+    # return jsonify(response)
+
+    return render_template("index.html")
 
 
 @app.get("/dict")
@@ -26,8 +28,37 @@ def dictionary():
     2. Try to find an exact match, and return it if found
     3. If not found, find all approximate matches and return
     """
-    return "TODO"
+    word = request.args.get("word")
+
+    response_data = {"words" : []}
+
+    if not word:
+        response_data["words"].append({
+            "word" : None,
+            "status" : "error",
+            "data" : "word not found"
+        })
+    else:
+        definitions = match_exact(word)
+        if definitions:
+            resp_status = "success"
+        else:
+            definitions = match_like(word)
+            if definitions:
+                resp_status = "partial"
+            else:
+                resp_status = "error"
+                definitions = []
+
+        response_data["words"].append({
+            "word" : word,
+            "status" : resp_status,
+            "data" : definitions
+        })
+
+    response = {"json": response_data}
+    return render_template("results.html", response=response)
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
