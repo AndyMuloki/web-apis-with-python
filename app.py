@@ -1,5 +1,6 @@
 from flask import Flask, request, send_file, jsonify
 from bin.filters import apply_filter
+import os
 
 app = Flask(__name__)
 
@@ -56,5 +57,7 @@ def image_filter(filter):
 
 
 if __name__ == "__main__":
-    app.run()
+    # Modified to use Heroku's PORT environment variable
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
     
